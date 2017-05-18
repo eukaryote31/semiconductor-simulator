@@ -8,6 +8,9 @@ import lombok.NonNull;
 
 @EqualsAndHashCode
 public class Layer {
+	int width;
+	int height;
+
 	@Getter
 	Metal[][] metalLayer;
 	@Getter
@@ -20,15 +23,23 @@ public class Layer {
 	public Layer(@NonNull Metal[][] metalLayer, @NonNull Silicon[][] siliconLayer) {
 		this.metalLayer = metalLayer;
 		this.siliconLayer = siliconLayer;
+
+		// TODO: sanitize input better
+		this.width = metalLayer.length;
+		this.height = metalLayer[0].length;
 	}
 
 	public Layer(Layer l) {
 		// clone is probably the best solution here
 		this.metalLayer = l.getMetalLayer().clone();
 		this.siliconLayer = l.getSiliconLayer().clone();
+		this.width = l.width;
+		this.height = l.height;
 	}
 
 	public Silicon getSiliconAt(int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return null;
 		return siliconLayer[x][y];
 	}
 
@@ -41,6 +52,8 @@ public class Layer {
 	}
 
 	public Metal getMetalAt(int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return null;
 		return metalLayer[x][y];
 	}
 

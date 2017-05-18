@@ -12,7 +12,7 @@ public interface Connectable {
 		case WEST:
 			return isConnectedW();
 		default:
-			throw new AssertionError();
+			throw new AssertionError(d);
 		}
 	}
 
@@ -20,14 +20,18 @@ public interface Connectable {
 		switch (d) {
 		case NORTH:
 			setConnectedN(connected);
+			break;
 		case SOUTH:
 			setConnectedS(connected);
+			break;
 		case EAST:
 			setConnectedE(connected);
+			break;
 		case WEST:
 			setConnectedW(connected);
+			break;
 		default:
-			throw new AssertionError();
+			throw new AssertionError(d);
 		}
 	}
 
