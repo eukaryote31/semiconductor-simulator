@@ -1,4 +1,4 @@
-package circuitgame.simulator.design;
+package game.circuitsimulator.design;
 
 import lombok.Getter;
 

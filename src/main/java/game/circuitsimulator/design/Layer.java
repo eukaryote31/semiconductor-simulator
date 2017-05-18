@@ -1,4 +1,4 @@
-package circuitgame.simulator.design;
+package game.circuitsimulator.design;
 
 import javax.annotation.Nullable;
 
@@ -31,23 +31,23 @@ public class Layer {
 	public Silicon getSiliconAt(int x, int y) {
 		return siliconLayer[x][y];
 	}
-	
+
 	public void setSiliconAt(int x, int y, @Nullable Silicon s) {
 		siliconLayer[x][y] = s;
 	}
-	
+
 	public void setMetalAt(int x, int y, @Nullable Metal m) {
 		metalLayer[x][y] = m;
 	}
-	
+
 	public Metal getMetalAt(int x, int y) {
 		return metalLayer[x][y];
 	}
-	
+
 	public void setNSilicon(int x, int y) {
 		setSiliconAt(x, y, new Silicon(SiliconType.N));
 	}
-	
+
 	public void setPSilicon(int x, int y) {
 		setSiliconAt(x, y, new Silicon(SiliconType.P));
 	}
@@ -79,15 +79,15 @@ public class Layer {
 
 		return true;
 	}
-	
+
 	public void removeSilicon(int x, int y) {
 		setSiliconAt(x, y, null);
-		
-		for(Direction d : Direction.getDirections()) {
+
+		for (Direction d : Direction.getDirections()) {
 			Silicon tgt = getSiliconAt(d.offsetX(x), d.offsetY(y));
-			
+
 			// diconnect
-			if(tgt != null && tgt.isConnected(d.opposite()))
+			if (tgt != null && tgt.isConnected(d.opposite()))
 				tgt.setConnected(false, d.opposite());
 		}
 	}

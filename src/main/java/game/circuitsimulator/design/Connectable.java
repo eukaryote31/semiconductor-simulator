@@ -1,4 +1,4 @@
-package circuitgame.simulator.design;
+package game.circuitsimulator.design;
 
 public interface Connectable {
 	default public boolean isConnected(Direction d) {
