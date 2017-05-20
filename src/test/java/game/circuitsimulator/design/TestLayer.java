@@ -93,7 +93,7 @@ public class TestLayer {
 		assertThat(middle.isConnected(Direction.SOUTH), is(true));
 		assertThat(bottom.isConnected(Direction.NORTH), is(true));
 		
-		l.removeSilicon(1, 1);
+		l.removeMetal(1, 1);
 		
 		middle = l.getMetalAt(1, 1);
 		left = l.getMetalAt(0, 1);

@@ -105,6 +105,10 @@ public class Layer {
 	
 	
 	
+	public void removeMetal(int x, int y) {
+		setMetalAt(x, y, null);
+
+	}	
 	public void setMetalAt(int x, int y, @Nullable Metal m) {
 		metalLayer[x][y] = m;
 	}
