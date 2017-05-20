@@ -20,6 +20,14 @@ public class Layer {
 		this(new Metal[width][height], new Silicon[width][height]);
 	}
 
+	public Layer(Layer l) {
+		// clone is probably the best solution here
+		this.metalLayer = l.getMetalLayer().clone();
+		this.siliconLayer = l.getSiliconLayer().clone();
+		this.width = l.width;
+		this.height = l.height;
+	}
+
 	public Layer(@NonNull Metal[][] metalLayer, @NonNull Silicon[][] siliconLayer) {
 		this.metalLayer = metalLayer;
 		this.siliconLayer = siliconLayer;
@@ -29,41 +37,7 @@ public class Layer {
 		this.height = metalLayer[0].length;
 	}
 
-	public Layer(Layer l) {
-		// clone is probably the best solution here
-		this.metalLayer = l.getMetalLayer().clone();
-		this.siliconLayer = l.getSiliconLayer().clone();
-		this.width = l.width;
-		this.height = l.height;
-	}
-
-	public Silicon getSiliconAt(int x, int y) {
-		if (x < 0 || y < 0 || x >= width || y >= height)
-			return null;
-		return siliconLayer[x][y];
-	}
-
-	public void setSiliconAt(int x, int y, @Nullable Silicon s) {
-		siliconLayer[x][y] = s;
-	}
-
-	public void setMetalAt(int x, int y, @Nullable Metal m) {
-		metalLayer[x][y] = m;
-	}
-
-	public Metal getMetalAt(int x, int y) {
-		if (x < 0 || y < 0 || x >= width || y >= height)
-			return null;
-		return metalLayer[x][y];
-	}
-
-	public void setNSilicon(int x, int y) {
-		setSiliconAt(x, y, new Silicon(SiliconType.N));
-	}
-
-	public void setPSilicon(int x, int y) {
-		setSiliconAt(x, y, new Silicon(SiliconType.P));
-	}
+	// SILICON //
 
 	public boolean connectSilicon(int x, int y, @NonNull Direction direction) {
 		Silicon top = getSiliconAt(x, y);
@@ -93,11 +67,70 @@ public class Layer {
 		return true;
 	}
 
+	public Silicon getSiliconAt(int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return null;
+		return siliconLayer[x][y];
+	}
+
 	public void removeSilicon(int x, int y) {
 		setSiliconAt(x, y, null);
 
 		for (Direction d : Direction.getDirections()) {
 			Silicon tgt = getSiliconAt(d.offsetX(x), d.offsetY(y));
+
+			// diconnect
+			if (tgt != null && tgt.isConnected(d.opposite()))
+				tgt.setConnected(false, d.opposite());
+		}
+	}
+
+	public void setNSilicon(int x, int y) {
+		setSiliconAt(x, y, new Silicon(SiliconType.N));
+	}
+
+	public void setPSilicon(int x, int y) {
+		setSiliconAt(x, y, new Silicon(SiliconType.P));
+	}
+
+	public void setSiliconAt(int x, int y, @Nullable Silicon s) {
+		siliconLayer[x][y] = s;
+	}
+
+	// METAL //
+
+	public void setMetal(int x, int y) {
+		setMetalAt(x, y, new Metal());
+	}
+
+	public void setMetalAt(int x, int y, @Nullable Metal m) {
+		metalLayer[x][y] = m;
+	}
+
+	public Metal getMetalAt(int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return null;
+		return metalLayer[x][y];
+	}
+
+	public boolean connectMetal(int x, int y, @NonNull Direction direction) {
+		Metal a = getMetalAt(x, y);
+		Metal b = getMetalAt(direction.offsetX(x), direction.offsetY(y));
+
+		if(a == null || b == null)
+			return false;
+		
+		a.setConnected(true, direction);
+		b.setConnected(true, direction.opposite());
+		
+		return true;
+	}
+
+	public void removeMetal(int x, int y) {
+		setMetalAt(x, y, null);
+
+		for (Direction d : Direction.getDirections()) {
+			Metal tgt = getMetalAt(d.offsetX(x), d.offsetY(y));
 
 			// diconnect
 			if (tgt != null && tgt.isConnected(d.opposite()))
