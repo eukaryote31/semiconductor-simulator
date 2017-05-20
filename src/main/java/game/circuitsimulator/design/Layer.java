@@ -1,5 +1,9 @@
 package game.circuitsimulator.design;
 
+import java.awt.Point;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import lombok.EqualsAndHashCode;
@@ -11,6 +15,9 @@ public class Layer {
 	int width;
 	int height;
 
+	@Getter
+	Map<String, Point> pads;
+	
 	@Getter
 	Metal[][] metalLayer;
 	@Getter
@@ -24,8 +31,10 @@ public class Layer {
 		// clone is probably the best solution here
 		this.metalLayer = l.getMetalLayer().clone();
 		this.siliconLayer = l.getSiliconLayer().clone();
+		
 		this.width = l.width;
 		this.height = l.height;
+		this.pads = l.pads;
 	}
 
 	public Layer(@NonNull Metal[][] metalLayer, @NonNull Silicon[][] siliconLayer) {
@@ -35,6 +44,8 @@ public class Layer {
 		// TODO: sanitize input better
 		this.width = metalLayer.length;
 		this.height = metalLayer[0].length;
+		
+		this.pads = new HashMap<>();
 	}
 
 	// SILICON //
@@ -138,4 +149,26 @@ public class Layer {
 		}
 	}
 
+	// PADS
+	
+	public boolean addPad(@NonNull String name, int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return false;
+		
+		// pads have to be on metal
+		if(getMetalAt(x, y) == null)
+			return false;
+		
+		Point p = new Point(x, y);
+		
+		return p.equals(pads.putIfAbsent(name, p));
+	}
+	
+	public Point getPadLocation(@NonNull String name) {
+		return pads.get(name);
+	}
+	
+	public boolean removePad(@NonNull String name) {
+		return pads.remove(name) != null;
+	}
 }
