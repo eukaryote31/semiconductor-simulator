@@ -37,6 +37,11 @@ public class Layer {
 		this.height = l.height;
 	}
 
+	
+	
+	
+	
+	
 	public Silicon getSiliconAt(int x, int y) {
 		if (x < 0 || y < 0 || x >= width || y >= height)
 			return null;
@@ -45,16 +50,6 @@ public class Layer {
 
 	public void setSiliconAt(int x, int y, @Nullable Silicon s) {
 		siliconLayer[x][y] = s;
-	}
-
-	public void setMetalAt(int x, int y, @Nullable Metal m) {
-		metalLayer[x][y] = m;
-	}
-
-	public Metal getMetalAt(int x, int y) {
-		if (x < 0 || y < 0 || x >= width || y >= height)
-			return null;
-		return metalLayer[x][y];
 	}
 
 	public void setNSilicon(int x, int y) {
@@ -103,6 +98,38 @@ public class Layer {
 			if (tgt != null && tgt.isConnected(d.opposite()))
 				tgt.setConnected(false, d.opposite());
 		}
+	}	
+	
+	
+	
+	
+	
+	
+	public void setMetalAt(int x, int y, @Nullable Metal m) {
+		metalLayer[x][y] = m;
 	}
+
+	public Metal getMetalAt(int x, int y) {
+		if (x < 0 || y < 0 || x >= width || y >= height)
+			return null;
+		return metalLayer[x][y];
+	}
+
+	public boolean connectMetal(int x, int y, @NonNull Direction direction) {
+		Metal top = getMetalAt(x, y);
+		Metal base = getMetalAt(direction.offsetX(x), direction.offsetY(y));
+
+		if (top == null || base == null)
+			return false;
+
+
+
+		top.setConnected(true, direction);
+		base.setConnected(true, direction.opposite());
+
+		return true;
+	}
+	
+
 
 }
