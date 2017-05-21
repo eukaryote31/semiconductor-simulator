@@ -1,6 +1,7 @@
 package game.circuitsimulator.design;
 
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +13,15 @@ import lombok.NonNull;
 
 @EqualsAndHashCode
 public class Layer {
+	@Getter
 	int width;
+
+	@Getter
 	int height;
 
 	@Getter
 	Map<String, Point> pads;
-	
+
 	@Getter
 	Metal[][] metalLayer;
 	@Getter
@@ -31,7 +35,7 @@ public class Layer {
 		// clone is probably the best solution here
 		this.metalLayer = l.getMetalLayer().clone();
 		this.siliconLayer = l.getSiliconLayer().clone();
-		
+
 		this.width = l.width;
 		this.height = l.height;
 		this.pads = l.pads;
@@ -44,7 +48,7 @@ public class Layer {
 		// TODO: sanitize input better
 		this.width = metalLayer.length;
 		this.height = metalLayer[0].length;
-		
+
 		this.pads = new HashMap<>();
 	}
 
@@ -128,12 +132,12 @@ public class Layer {
 		Metal a = getMetalAt(x, y);
 		Metal b = getMetalAt(direction.offsetX(x), direction.offsetY(y));
 
-		if(a == null || b == null)
+		if (a == null || b == null)
 			return false;
-		
+
 		a.setConnected(true, direction);
 		b.setConnected(true, direction.opposite());
-		
+
 		return true;
 	}
 
@@ -150,25 +154,40 @@ public class Layer {
 	}
 
 	// PADS
-	
+
 	public boolean addPad(@NonNull String name, int x, int y) {
 		if (x < 0 || y < 0 || x >= width || y >= height)
 			return false;
-		
+
 		// pads have to be on metal
-		if(getMetalAt(x, y) == null)
+		if (getMetalAt(x, y) == null)
 			return false;
-		
+
 		Point p = new Point(x, y);
-		
+
 		return p.equals(pads.putIfAbsent(name, p));
 	}
-	
+
 	public Point getPadLocation(@NonNull String name) {
 		return pads.get(name);
 	}
-	
+
 	public boolean removePad(@NonNull String name) {
 		return pads.remove(name) != null;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Metal Layer: \n");
+		for (int y = getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < getWidth(); x++) {
+				Metal m = this.getMetalAt(x, y);
+				sb.append(m == null ? " " : m.toString());
+			}
+
+			sb.append("\n");
+		}
+
+		return sb.toString();
 	}
 }

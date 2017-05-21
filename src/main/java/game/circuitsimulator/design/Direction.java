@@ -1,5 +1,7 @@
 package game.circuitsimulator.design;
 
+import java.awt.Point;
+
 import lombok.Getter;
 
 public enum Direction {
@@ -25,6 +27,10 @@ public enum Direction {
 			return y - 1;
 		else
 			return y;
+	}
+	
+	public Point offset(Point p) {
+		return new Point(offsetX(p.x), offsetY(p.y));
 	}
 
 	public Direction opposite() {
