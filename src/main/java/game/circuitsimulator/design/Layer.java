@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -20,7 +23,7 @@ public class Layer {
 	int height;
 
 	@Getter
-	Map<String, Point> pads;
+	BiMap<String, Point> pads;
 
 	@Getter
 	Metal[] metalLayer;
@@ -44,7 +47,9 @@ public class Layer {
 				setSiliconAt(x, y, l.getSiliconAt(x, y).clone());
 			}
 		}
-		this.pads = l.pads;
+		
+		this.pads = HashBiMap.create(l.getPads());
+		
 	}
 
 	public Layer(@NonNull Metal[] metalLayer, @NonNull Silicon[] siliconLayer, int width) {
@@ -55,7 +60,7 @@ public class Layer {
 		this.width = width;
 		this.height = metalLayer.length / width;
 
-		this.pads = new HashMap<>();
+		this.pads = HashBiMap.create();
 	}
 
 	// SILICON //
@@ -78,6 +83,15 @@ public class Layer {
 				base.setType(SiliconType.JUNC_PNP);
 			}
 
+			// we cant let two different tpyes of junctions be connected
+			if (top.getType() == SiliconType.JUNC_NPN && base.getType() == SiliconType.JUNC_PNP) {
+				return false;
+			}
+
+			if (top.getType() == SiliconType.JUNC_PNP && base.getType() == SiliconType.JUNC_NPN) {
+				return false;
+			}
+			
 			// otherwise one or both is a junction and we can safely let those
 			// be connected
 		}

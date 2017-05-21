@@ -4,13 +4,17 @@ import java.awt.Point;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.BiMap;
 
 import game.circuitsimulator.design.Direction;
 import game.circuitsimulator.design.Layer;
 import game.circuitsimulator.design.Metal;
 import game.circuitsimulator.design.Silicon;
 import game.circuitsimulator.design.SiliconType;
+import game.circuitsimulator.simulator.Trace.TraceNode;
 
 public class LayerSimulator {
 	Layer layer;
@@ -23,6 +27,153 @@ public class LayerSimulator {
 
 		metalTraces = this.getMetalTraces(layer);
 		siliconTraces = this.getSiliconTraces(layer);
+	}
+
+	protected Set<Trace> reduceTrace(List<Set<Point>> metal, List<Set<Point>> silicon, Layer l) {
+		Set<Trace> ret = new HashSet<>();
+
+		for (Set<Point> trace : metal) {
+			ret.add(getFullTrace(trace, l, silicon, metal));
+		}
+
+		return ret;
+	}
+
+	private Trace getFullTrace(Set<Point> metal, Layer l, List<Set<Point>> siliconTraces,
+			List<Set<Point>> metalTraces) {
+		Set<Set<Point>> viadSilicon;
+		Set<Set<Point>> viadMetal = new HashSet<>();
+
+		viadSilicon = listViadSilicon(layer, metal, siliconTraces);
+
+		Set<Set<Point>> prevViadS = viadSilicon;
+		Set<Set<Point>> prevViadM = viadMetal;
+
+		while (true) {
+			// get all metal connected to the silicon
+			for (Set<Point> s : prevViadS) {
+				prevViadM = listViadMetal(layer, s, metalTraces);
+
+				viadMetal.addAll(prevViadM);
+			}
+
+			if (prevViadM.isEmpty())
+				break;
+
+			// get all silicon connected to the metal connected to the silicon
+			for (Set<Point> s : prevViadM) {
+				prevViadS = listViadSilicon(layer, s, siliconTraces);
+
+				viadSilicon.addAll(prevViadS);
+			}
+
+			if (prevViadS.isEmpty())
+				break;
+		}
+
+		Set<TraceNode> nodes = new HashSet<>();
+
+		for (Set<Point> subSet : viadSilicon) {
+			for (Point s : subSet) {
+				// todo: connectN and connectP
+				nodes.add(new TraceNode(s, l.getSiliconAt(s.x, s.y).getType(), getNPNJunctions(l, s),
+						getPNPJunctions(l, s)));
+			}
+		}
+		
+		return new Trace(l, nodes);
+	}
+
+	private Set<Point> getPNPJunctions(Layer l, Point p) {
+		Set<Point> ret = new HashSet<>();
+
+		if (l.getSiliconAt(p.x, p.y).getType() == SiliconType.JUNC_PNP)
+			ret.add(p);
+
+		for (Direction d : Direction.getDirections()) {
+			Silicon s = l.getSiliconAt(d.offsetX(p.x), d.offsetY(p.y));
+
+			if (s.getType() == SiliconType.JUNC_PNP) {
+				ret.add(d.offset(p));
+			}
+		}
+
+		return ret;
+	}
+
+	private Set<Point> getNPNJunctions(Layer l, Point p) {
+		Set<Point> ret = new HashSet<>();
+
+		if (l.getSiliconAt(p.x, p.y).getType() == SiliconType.JUNC_NPN)
+			ret.add(p);
+
+		for (Direction d : Direction.getDirections()) {
+			Silicon s = l.getSiliconAt(d.offsetX(p.x), d.offsetY(p.y));
+
+			if (s.getType() == SiliconType.JUNC_NPN) {
+				ret.add(d.offset(p));
+			}
+		}
+
+		return ret;
+	}
+
+	private Set<String> listPads(Set<Point> metal, Layer l) {
+		BiMap<Point, String> pads = l.getPads().inverse();
+		Set<String> ret = new HashSet<>();
+
+		for (Point p : metal) {
+			String pad = pads.get(p);
+
+			if (pad != null) {
+				ret.add(pad);
+			}
+		}
+
+		return ret;
+	}
+
+	private Set<Set<Point>> listViadSilicon(Layer layer, Set<Point> metal, List<Set<Point>> siliconTraces) {
+
+		Set<Set<Point>> ret = new HashSet<>();
+
+		for (Point m : metal) {
+			Set<Point> siliconTrace = viadSilicon(layer, siliconTraces, m);
+
+			if (siliconTrace != null)
+				ret.add(siliconTrace);
+		}
+
+		return ret;
+	}
+
+	private Set<Set<Point>> listViadMetal(Layer layer, Set<Point> silicon, List<Set<Point>> metalTraces) {
+
+		Set<Set<Point>> ret = new HashSet<>();
+
+		for (Point m : silicon) {
+			if (layer.getSiliconAt(m.x, m.y).isVia()) {
+				for (Set<Point> s : metalTraces) {
+					if (s.contains(m))
+						ret.add(s);
+				}
+			}
+		}
+
+		return ret;
+	}
+
+	private Set<Point> viadSilicon(Layer layer, List<Set<Point>> siliconTraces, Point metal) {
+		Silicon s = layer.getSiliconAt(metal.x, metal.y);
+
+		if (s.isVia()) {
+			for (Set<Point> trace : siliconTraces) {
+				if (trace.contains(metal))
+					return trace;
+			}
+		}
+
+		return null;
 	}
 
 	protected List<Set<Point>> getMetalTraces(Layer layer) {
@@ -124,6 +275,14 @@ public class LayerSimulator {
 				boolean connectedWest = s.isConnected(Direction.WEST) && layer
 						.getSiliconAt(Direction.WEST.offsetX(x), Direction.WEST.offsetY(y)).getType() == s.getType();
 
+				// junction
+				if (s.getType() == SiliconType.JUNC_NPN || s.getType() == SiliconType.JUNC_PNP) {
+					Set<Point> newSet = new HashSet<>();
+					newSet.add(p);
+
+					ret.add(newSet);
+				}
+
 				if (connectedSouth && connectedWest) {
 					// if NORTH and WEST are two different traces, delete both
 					// and then push a new trace with the members of both AND
@@ -188,9 +347,5 @@ public class LayerSimulator {
 		}
 
 		return null;
-	}
-
-	public void runTick() {
-
 	}
 }
