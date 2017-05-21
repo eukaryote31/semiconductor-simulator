@@ -23,12 +23,12 @@ public class Layer {
 	Map<String, Point> pads;
 
 	@Getter
-	Metal[][] metalLayer;
+	Metal[] metalLayer;
 	@Getter
-	Silicon[][] siliconLayer;
+	Silicon[] siliconLayer;
 
 	public Layer(int width, int height) {
-		this(new Metal[width][height], new Silicon[width][height]);
+		this(new Metal[width * height], new Silicon[width * height], width);
 	}
 
 	public Layer(Layer l) {
@@ -41,13 +41,13 @@ public class Layer {
 		this.pads = l.pads;
 	}
 
-	public Layer(@NonNull Metal[][] metalLayer, @NonNull Silicon[][] siliconLayer) {
+	public Layer(@NonNull Metal[] metalLayer, @NonNull Silicon[] siliconLayer, int width) {
 		this.metalLayer = metalLayer;
 		this.siliconLayer = siliconLayer;
 
 		// TODO: sanitize input better
-		this.width = metalLayer.length;
-		this.height = metalLayer[0].length;
+		this.width = width;
+		this.height = metalLayer.length / width;
 
 		this.pads = new HashMap<>();
 	}
@@ -85,7 +85,7 @@ public class Layer {
 	public Silicon getSiliconAt(int x, int y) {
 		if (x < 0 || y < 0 || x >= width || y >= height)
 			return null;
-		return siliconLayer[x][y];
+		return siliconLayer[x + width * y];
 	}
 
 	public void removeSilicon(int x, int y) {
@@ -109,7 +109,7 @@ public class Layer {
 	}
 
 	public void setSiliconAt(int x, int y, @Nullable Silicon s) {
-		siliconLayer[x][y] = s;
+		siliconLayer[x + width * y] = s;
 	}
 
 	// METAL //
@@ -119,13 +119,13 @@ public class Layer {
 	}
 
 	public void setMetalAt(int x, int y, @Nullable Metal m) {
-		metalLayer[x][y] = m;
+		metalLayer[x + width * y] = m;
 	}
 
 	public Metal getMetalAt(int x, int y) {
 		if (x < 0 || y < 0 || x >= width || y >= height)
 			return null;
-		return metalLayer[x][y];
+		return metalLayer[x + width * y];
 	}
 
 	public boolean connectMetal(int x, int y, @NonNull Direction direction) {
