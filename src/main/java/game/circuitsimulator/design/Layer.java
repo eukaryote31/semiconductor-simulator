@@ -188,6 +188,46 @@ public class Layer {
 			sb.append("\n");
 		}
 
+		sb.append("\n\nSilicon layer (N): \n");
+		for (int y = getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < getWidth(); x++) {
+				Silicon m = this.getSiliconAt(x, y);
+				sb.append(m == null || m.getType() != SiliconType.N ? " " : m.toString());
+			}
+
+			sb.append("\n");
+		}
+
+		sb.append("\n\nSilicon layer (P): \n");
+		for (int y = getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < getWidth(); x++) {
+				Silicon m = this.getSiliconAt(x, y);
+				sb.append(m == null || m.getType() != SiliconType.P ? " " : m.toString());
+			}
+
+			sb.append("\n");
+		}
+
+		sb.append("\n\nSilicon layer (NPN junctions): \n");
+		for (int y = getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < getWidth(); x++) {
+				Silicon m = this.getSiliconAt(x, y);
+				sb.append(m == null || m.getType() != SiliconType.JUNC_NPN ? " " : m.toString());
+			}
+
+			sb.append("\n");
+		}
+
+		sb.append("\n\nSilicon layer (PNP junctions): \n");
+		for (int y = getHeight() - 1; y >= 0; y--) {
+			for (int x = 0; x < getWidth(); x++) {
+				Silicon m = this.getSiliconAt(x, y);
+				sb.append(m == null || m.getType() != SiliconType.JUNC_PNP ? " " : m.toString());
+			}
+
+			sb.append("\n");
+		}
+
 		return sb.toString();
 	}
 }

@@ -42,13 +42,13 @@ public class Metal implements Cloneable, Connectable {
 
 		// bit order: W,E,S,N
 		String[] map = { none, north, south, northsouth, east, northeast, southeast, northsoutheast, west, northwest,
-				southwest, northsouthwest, eastwest, northeastwest, southeastwest, all};
+				southwest, northsouthwest, eastwest, northeastwest, southeastwest, all };
 
 		int n = isConnectedN() ? 1 : 0;
 		int s = isConnectedS() ? 1 : 0;
 		int e = isConnectedE() ? 1 : 0;
 		int w = isConnectedW() ? 1 : 0;
-		
+
 		return map[w * 8 + e * 4 + s * 2 + n];
 	}
 }
