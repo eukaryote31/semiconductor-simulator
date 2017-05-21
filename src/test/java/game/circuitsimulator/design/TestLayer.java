@@ -125,4 +125,65 @@ public class TestLayer {
 		assertThat(middle, is(equalTo(null)));
 		
 	}
+	
+	@Test
+	public void testCopyConstructor() {
+		Layer l = new Layer(10, 10);
+
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 10; y++) {
+				l.setMetal(x, y);
+			}
+		}
+		
+		for (int x = 0; x < 10; x++) {
+			for (int y = 0; y < 5; y++) {
+				l.setNSilicon(x, y);
+			}
+		}
+		
+		for (int x = 0; x < 10; x++) {
+			for (int y = 5; y < 10; y++) {
+				l.setPSilicon(x, y);
+			}
+		}
+		
+		// make metal spiral
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 10 - i; j++)
+				l.connectMetal(j, i, Direction.EAST);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 9 - i; j++)
+				l.connectMetal(j, 9 - i, Direction.EAST);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 9 - i; j++)
+				l.connectMetal(i, j + 1, Direction.SOUTH);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 8 - i; j++)
+				l.connectMetal(9 - i, j + 2, Direction.SOUTH);
+		
+		// make silicon spiral
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 10 - i; j++)
+				l.connectSilicon(j, i, Direction.EAST);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 9 - i; j++)
+				l.connectSilicon(j, 9 - i, Direction.EAST);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 9 - i; j++)
+				l.connectSilicon(i, j + 1, Direction.SOUTH);
+
+		for (int i = 0; i < 5; i++)
+			for (int j = i; j < 8 - i; j++)
+				l.connectSilicon(9 - i, j + 2, Direction.SOUTH);
+		
+		assertThat(l, is(equalTo(new Layer(l))));
+		
+		
+	}
 }
