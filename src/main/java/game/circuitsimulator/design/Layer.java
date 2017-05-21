@@ -32,12 +32,18 @@ public class Layer {
 	}
 
 	public Layer(Layer l) {
-		// clone is probably the best solution here
-		this.metalLayer = l.getMetalLayer().clone();
-		this.siliconLayer = l.getSiliconLayer().clone();
+		this.metalLayer = new Metal[l.getWidth() * l.getHeight()];
+		this.siliconLayer = new Silicon[l.getWidth() * l.getHeight()];
 
 		this.width = l.width;
 		this.height = l.height;
+
+		for (int x = 0; x < l.getWidth(); x++) {
+			for (int y = 0; y < l.getHeight(); y++) {
+				setMetalAt(x, y, l.getMetalAt(x, y).clone());
+				setSiliconAt(x, y, l.getSiliconAt(x, y).clone());
+			}
+		}
 		this.pads = l.pads;
 	}
 

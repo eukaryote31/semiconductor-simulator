@@ -182,7 +182,12 @@ public class TestLayer {
 			for (int j = i; j < 8 - i; j++)
 				l.connectSilicon(9 - i, j + 2, Direction.SOUTH);
 		
-		assertThat(l, is(equalTo(new Layer(l))));
+		Layer ot = new Layer(l);
+		assertThat(ot, is(equalTo(l)));
+		
+		ot.connectMetal(3, 1, Direction.NORTH);
+		
+		assertThat(ot, is(not(equalTo(l))));
 		
 		
 	}
