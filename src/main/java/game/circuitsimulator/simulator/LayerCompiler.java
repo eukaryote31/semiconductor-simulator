@@ -1,10 +1,16 @@
 package game.circuitsimulator.simulator;
 
 import java.awt.Point;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import game.circuitsimulator.design.Direction;
 import game.circuitsimulator.design.Layer;
@@ -18,11 +24,39 @@ public class LayerCompiler {
 	List<Set<Point>> metalTraces = new LinkedList<>();
 	List<Set<Point>> siliconTraces = new LinkedList<>();
 
+	Multimap<Point, Point> metalToSilicon = HashMultimap.create();
+	Multimap<Point, Point> siliconToMetal = HashMultimap.create();
+
 	public LayerCompiler(Layer l) {
 		this.layer = l;
 
 		metalTraces = this.getMetalTraces(layer);
 		siliconTraces = this.getSiliconTraces(layer);
+
+		viaMap((p) -> layer.getSiliconAt(p.x, p.y).isVia(), metalToSilicon, siliconToMetal, metalTraces, siliconTraces);
+
+	}
+
+	protected void viaMap(Function<Point, Boolean> via, Multimap<Point, Point> metalToSilicon,
+			Multimap<Point, Point> siliconToMetal, List<Set<Point>> metalTraces, List<Set<Point>> siliconTraces) {
+		for (Set<Point> s : siliconTraces) {
+			for (Point p : s) {
+				if (via.apply(p)) {
+					metalToSilicon.putAll(p, s);
+				}
+			}
+		}
+
+		for (Set<Point> s : metalTraces) {
+			for (Point p : s) {
+				Collection<Point> siliconTrace = metalToSilicon.get(p);
+
+				// there is a via at point p
+				if (!siliconTrace.isEmpty()) {
+					siliconToMetal.putAll(p, s);
+				}
+			}
+		}
 	}
 
 	protected List<Set<Point>> getMetalTraces(Layer layer) {

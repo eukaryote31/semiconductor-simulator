@@ -2,13 +2,22 @@ package game.circuitsimulator.simulator;
 
 import org.junit.Test;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
 import game.circuitsimulator.design.Direction;
 import game.circuitsimulator.design.Layer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class TestLayerSimulator {
+import java.awt.Point;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+public class TestLayerCompiler {
 	// @Test
 	public void testMetalTraceSpiral() {
 		Layer l = new Layer(10, 10);
@@ -82,5 +91,38 @@ public class TestLayerSimulator {
 		assertThat(sim.siliconTraces.size(), is(equalTo(4)));
 
 		System.out.println(l);
+	}
+
+	@Test
+	public void testViaMap() {
+		LayerCompiler lc = new LayerCompiler(new Layer(10, 10));
+
+		List<Set<Point>> metalTraces = new LinkedList<>();
+		metalTraces.add(makeSet(new Point(0, 0), new Point(0, 1), new Point(0, 2)));
+		metalTraces.add(makeSet(new Point(0, 4)));
+		
+		List<Set<Point>> siliconTraces = new LinkedList<>();
+		siliconTraces.add(makeSet(new Point(0, 0), new Point(1, 0), new Point(2, 0)));
+
+		Multimap<Point, Point> metalToSilicon = HashMultimap.create();
+		Multimap<Point, Point> siliconToMetal = HashMultimap.create();
+
+		Set<Point> via = makeSet(new Point(0, 0));
+		
+		lc.viaMap((p) -> {
+			return via.contains(p);
+		}, metalToSilicon, siliconToMetal, metalTraces, siliconTraces);
+		
+		System.out.println(metalToSilicon);
+		System.out.println(siliconToMetal);
+	}
+
+	private static <T> Set<T> makeSet(T... elements) {
+		Set<T> ret = new HashSet<>();
+
+		for (T t : elements)
+			ret.add(t);
+
+		return ret;
 	}
 }
