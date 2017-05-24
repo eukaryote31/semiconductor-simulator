@@ -4,10 +4,12 @@ import java.awt.Point;
 
 import game.circuitsimulator.design.Layer;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Pad extends LayerComponent {
 	transient boolean externalPower = false;
 
+	@Setter
 	transient CompiledLayer layer;
 
 	@Getter

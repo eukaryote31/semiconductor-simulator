@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -16,25 +17,25 @@ import lombok.experimental.Accessors;
 public class CompiledLayer {
 	transient List<LayerComponent> toUpdate;
 
-	LayerComponent[] traces;
+	List<LayerComponent> traces;
 
-	Point[] npnJunctions;
-	Point[] pnpJunctions;
+	Set<Point> npnJunctions;
+	Set<Point> pnpJunctions;
 
 	Map<String, Pad> pads;
 
 	Map<Point, Integer> index;
 
 	public Trace getTrace(Point p) {
-		return (Trace) traces[index.get(p)];
+		return (Trace) traces.get(index.get(p));
 	}
 
 	public Junction getJunction(Point p) {
-		return (Junction) traces[index.get(p)];
+		return (Junction) traces.get(index.get(p));
 	}
 
 	public LayerComponent getComponent(Point p) {
-		return traces[index.get(p)];
+		return traces.get(index.get(p));
 	}
 
 	public void tick() {

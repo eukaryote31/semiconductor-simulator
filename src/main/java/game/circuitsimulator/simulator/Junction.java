@@ -6,8 +6,10 @@ import java.util.List;
 
 import game.circuitsimulator.design.SiliconType;
 import lombok.Getter;
+import lombok.Setter;
 
 public class Junction extends LayerComponent {
+	@Setter
 	transient CompiledLayer layer;
 	transient List<LayerComponent> switchingPoweredBy = new LinkedList<>();
 

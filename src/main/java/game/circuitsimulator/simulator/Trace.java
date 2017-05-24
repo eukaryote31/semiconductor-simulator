@@ -1,27 +1,39 @@
 package game.circuitsimulator.simulator;
 
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import game.circuitsimulator.design.SiliconType;
+import lombok.Setter;
 
 public class Trace extends LayerComponent {
+	@Setter
 	transient CompiledLayer layer;
 
 	public Trace(CompiledLayer layer) {
 		this.layer = layer;
 	}
 	
-	public Trace(Trace t) {
+	public void addSiliconTrace(Collection<Point> s) {
+		allSiliconNodes.addAll(s);
+	}
+	
+	public void addMetalTrace(Collection<Point> s) {
+		allMetalNodes.addAll(s);
 		
+		final int index = layer.traces.indexOf(this);
+		s.forEach((p) -> {
+			layer.index.put(p, index);
+		});
 	}
 
-	Point[] allMetalNodes;
-	Point[] allSiliconNodes;
+	List<Point> allMetalNodes;
+	List<Point> allSiliconNodes;
 
-	Point[] junctionsConnectedN;
-	Point[] junctionsConnectedP;
+	List<Point> junctionsConnectedN;
+	List<Point> junctionsConnectedP;
 
 	@Override
 	public void update() {
@@ -29,7 +41,7 @@ public class Trace extends LayerComponent {
 		updateConnected(junctionsConnectedP, SiliconType.JUNC_NPN);
 	}
 
-	private void updateConnected(Point[] gates, SiliconType baseType) {
+	private void updateConnected(List<Point> gates, SiliconType baseType) {
 		for (Point juncP : gates) {
 			Junction junc = layer.getJunction(juncP);
 
