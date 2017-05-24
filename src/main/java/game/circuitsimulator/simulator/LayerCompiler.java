@@ -2,6 +2,7 @@ package game.circuitsimulator.simulator;
 
 import java.awt.Point;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,40 @@ public class LayerCompiler {
 
 		viaMap((p) -> layer.getSiliconAt(p.x, p.y).isVia(), metalToSilicon, siliconToMetal, metalTraces, siliconTraces);
 
+		Set<Point> allMetalNodes = new HashSet<>();
+		Set<Point> allSiliconNodes = new HashSet<>();
+
+		getMergedTrace(allMetalNodes, allSiliconNodes);
+	}
+	
+	protected void getMergedTrace(Set<Point> allMetalNodes, Set<Point> allSiliconNodes) {
+		Queue<Point> siliconQueue = new LinkedList<>();
+		Queue<Point> metalQueue = new LinkedList<>();
+		
+		// seed
+		siliconQueue.addAll(siliconTraces.isEmpty() ? Collections.emptyList() : siliconTraces.remove(0));
+		
+		while(!siliconQueue.isEmpty() || !metalQueue.isEmpty()) {
+			while(!siliconQueue.isEmpty()) {
+				Point p = siliconQueue.poll();
+				
+				Collection<Point> viadPoints = siliconToMetal.get(p);
+				viadPoints.removeAll(allMetalNodes);
+				
+				metalQueue.addAll(viadPoints);
+				allMetalNodes.addAll(viadPoints);
+			}
+			
+			while(!metalQueue.isEmpty()) {
+				Point p = metalQueue.poll();
+				
+				Collection<Point> viadPoints = metalToSilicon.get(p);
+				viadPoints.removeAll(allSiliconNodes);
+				
+				siliconQueue.addAll(viadPoints);
+				allSiliconNodes.addAll(viadPoints);
+			}
+		}
 	}
 
 	protected void viaMap(Function<Point, Boolean> via, Multimap<Point, Point> metalToSilicon,
