@@ -38,7 +38,7 @@ public class TestLayerSimulator {
 
 		System.out.println(l);
 
-		LayerSimulator sim = new LayerSimulator(l);
+		LayerCompiler sim = new LayerCompiler(l);
 
 		// make sure the spiral was joined correctly
 
@@ -47,7 +47,7 @@ public class TestLayerSimulator {
 		// now break the spiral somewhere
 		l.removeMetal(2, 4);
 
-		sim = new LayerSimulator(l);
+		sim = new LayerCompiler(l);
 
 		assertThat(sim.metalTraces.size(), is(equalTo(2)));
 
@@ -55,7 +55,7 @@ public class TestLayerSimulator {
 
 		l.setMetal(2, 4);
 
-		sim = new LayerSimulator(l);
+		sim = new LayerCompiler(l);
 
 		assertThat(sim.metalTraces.size(), is(equalTo(3)));
 
@@ -77,7 +77,7 @@ public class TestLayerSimulator {
 
 		l.connectSilicon(4, 4, Direction.WEST);
 
-		LayerSimulator sim = new LayerSimulator(l);
+		LayerCompiler sim = new LayerCompiler(l);
 
 		assertThat(sim.siliconTraces.size(), is(equalTo(4)));
 

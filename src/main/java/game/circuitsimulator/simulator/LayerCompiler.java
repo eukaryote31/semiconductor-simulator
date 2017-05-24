@@ -12,13 +12,13 @@ import game.circuitsimulator.design.Metal;
 import game.circuitsimulator.design.Silicon;
 import game.circuitsimulator.design.SiliconType;
 
-public class LayerSimulator {
+public class LayerCompiler {
 	Layer layer;
 
 	List<Set<Point>> metalTraces = new LinkedList<>();
 	List<Set<Point>> siliconTraces = new LinkedList<>();
 
-	public LayerSimulator(Layer l) {
+	public LayerCompiler(Layer l) {
 		this.layer = l;
 
 		metalTraces = this.getMetalTraces(layer);
